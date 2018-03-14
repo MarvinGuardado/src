@@ -78,6 +78,12 @@ export class HomePage {
   }
 
 
+getCosa(){
+
+	return this.af.database.publicador('/publicaciones');
+}
+
+
 
 
   agregarPublicacion(){
@@ -107,6 +113,7 @@ export class HomePage {
               contenido: data.title,
               uid: this.currentUser.uid,
               publicador: this.currentUser.nombre,
+              publicadorPhoto: this.currentUser.photoURL,
               likes: 0,
               noLikes: 0,
               estadoLike: 'thumbs-up',
@@ -119,7 +126,7 @@ export class HomePage {
     prompt.present();
   }
 
-  cerrarCesion(){
+  cerrarSesion(){
   	let actionSheet = this.actionSheetCtrl.create({
       title: 'que quieres hacer?',
       buttons: [
