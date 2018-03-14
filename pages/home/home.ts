@@ -17,7 +17,13 @@ export class HomePage {
 
   currentUser:any;
   PublRef:any;
+  LikeRef: any;
+  noLikeRef: any;
   publicaciones: AngularFireList<any>;
+  likes: AngularFireList<any>;
+  noLikes: AngularFireList<any>;
+
+  searchQuery: string = '';
   
   constructor(
     public navCtrl: NavController, 
@@ -29,6 +35,16 @@ export class HomePage {
     this.PublRef = afDatabase.list('publicaciones');
     this.publicaciones = this.PublRef.valueChanges();
 
+    this.LikeRef = afDatabase.list('likes');
+    this.likes = this.LikeRef.valueChanges();
+
+    this.noLikeRef = afDatabase.list('noLikes');
+    this.noLikes = this.noLikeRef.valueChanges();
+
+
+    this.initializeItems();
+
+
     afAuth.authState.subscribe(user => {
       if (!user) {
         this.currentUser = null;
@@ -38,6 +54,31 @@ export class HomePage {
       
     });
   }
+
+
+  initializeItems() {
+
+  	
+    this.items=['Marvin Guardado', 'Loren Guardado','Luis Hernandez','Hristo Oviedo'] ;
+    
+  }
+
+
+   getItems(ev: any) {
+ 
+    this.initializeItems();
+
+    let val = ev.target.value;
+    
+    if (val && val.trim() != '') {
+      this.items = this.items.filter((item) => {
+        return (item.toLowerCase().indexOf(val.toLowerCase()) > -1);
+      })
+    }
+  }
+
+
+
 
   agregarPublicacion(){
     let prompt = this.alertCtrl.create({
@@ -67,6 +108,7 @@ export class HomePage {
               uid: this.currentUser.uid,
               publicador: this.currentUser.nombre,
               likes: 0,
+              noLikes: 0,
               estadoLike: 'thumbs-up',
               modo: 'publico'
             });
@@ -143,8 +185,16 @@ export class HomePage {
     }
   
 
-  removePubl(publicacionId: string){
-    this.PublRef.remove(publicacionId);
+  removePubl(publicacionId: string, uid: string){
+
+  	if (uid == this.currentUser.uid){
+
+  		this.PublRef.remove(publicacionId);
+  		
+
+        
+  	}
+
   }
 
 
@@ -159,7 +209,8 @@ export class HomePage {
         {
           userId: response.user.uid, 
           displayName: response.user.displayName,
-          photoURL: response.user.photoURL
+          photoURL: response.user.photoURL,
+         
         });
       
       
@@ -176,32 +227,67 @@ export class HomePage {
   }
 
 
-  like(publicacionId, likes,estadoLike){
+  like(publicacionId,likes){
 
-  	if (estadoLike=='thumbs-up'){
+
+  		const  newLikeRef = this.LikeRef.push({});
+
+  		newLikeRef.set({
+              id: newLikeRef.key,
+              uid: this.currentUser.uid,
+              likeador: this.currentUser.nombre,
+              pubId: publicacionId
+            });
+
+  		this.PublRef.update(publicacionId, {
+
+	            likes: (likes+1) });
+
+  		
+  }
+
+  
+
+	noLike(publicacionId,noLikes){
+
+
+  		const  newNoLikeRef = this.noLikeRef.push({});
+
+  		newNoLikeRef.set({
+              id: newNoLikeRef.key,
+              uid: this.currentUser.uid,
+              noLikeador: this.currentUser.nombre,
+              pubId: publicacionId
+            });
 
 
   		this.PublRef.update(publicacionId, {
-            likes: (likes+1), estadoLike: 'thumbs-down',lastUpdatedBy: this.currentUser.uid
-        }); 
-  	}else{ 
-  		this.PublRef.update(publicacionId, {
-              likes: (likes-1), estadoLike: 'thumbs-up',lastUpdatedBy: this.currentUser.uid
-            }); 
-  	}
 
-  }
+	            noLikes: ( noLikes+1) });
+
+  		
+	}
 
 
-  borrar(publicacionId,contenido){
+	getUsers(usuario: string){
+			
+			this.currentUser = this.afDatabase.list('users', 
+		    ref => ref.orderByChild('displayName').startAt(usuario));
+			
+	}
+  	
 
-
-  }
-
-
+	getPublicacionFiltro(filtro: string){
+		this.publicaciones= this.afDatabase.list('/publicaciones',{
+			query:{
+			orderByChild: 'likes',
+			equalTo: filtro
+		}
+		}) as AngularFireList<any>;
+		return this.publicaciones; 
+		
+	}
 
 }
-
-
 
 

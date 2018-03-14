@@ -8,25 +8,59 @@
 
       <ion-item class="item item-trns text-center" p style="color:black;font-size:50px;background-image:url('https://firebasestorage.googleapis.com/v0/b/prueba-67a60.appspot.com/o/fondoFacturacion.png?alt=media&token=f8923023-db46-4699-b234-82316e766ef5');">
       PinkyBook
+
+      <ion-avatar item-end *ngIf="afAuth.authState | async" 		(click)="cerrarCesion()">
+          		<img src={{currentUser.photoURL}}>
+       		 </ion-avatar>
+
+
  
-        <ion-avatar item-end *ngIf="afAuth.authState | async" (click)="cerrarCesion()">
-          <img src={{currentUser.photoURL}}>
-        </ion-avatar>
-      </ion-item>
+        
+      		</ion-item>
+
+      		
+
+        			
+		
       
-    </ion-title>
-  </ion-navbar>
+    		</ion-title>
+ 		</ion-navbar>
 </ion-header>
 
+
+
 <ion-content padding>
+
+
+<ion-searchbar *ngIf="afAuth.authState | async "(ionInput)="getItems($event)"></ion-searchbar>
+<ion-list *ngIf="afAuth.authState | async">
+
+
+  <ion-item *ngFor="let item of items" >
+    {{item}}
+  </ion-item>
+
+
+
+
+</ion-list>
+
+
+
+					<ion-fab right bottom item-end *ngIf="afAuth.authState | async">
+		          <button ion-fab  (click)="agregarPublicacion()">
+		            <ion-icon name="add" ></ion-icon>
+		          </button>
+		        	</ion-fab>
+
+
     <div *ngIf="afAuth.authState | async as user; else showLogin">
         <h1 p style="color:white;font-size:20px;">Bienvenido {{ user.displayName }} </h1>
-        <ion-searchbar (ionInput)="getItems($event)"></ion-searchbar>
-			<ion-list>
-			  <ion-item *ngFor="let item of items">
-			    {{ item }}
-			  </ion-item>
-			</ion-list>
+      
+
+
+
+
         <ion-list>
 
 
@@ -34,20 +68,32 @@
 
 				  <ion-card-header p style="color:black;font-size:30px;">
 				    {{publicacion.publicador}}
+
+
 				  </ion-card-header>
 
 				  <ion-card-content p style="color:blue;font-size:20px;">
 				   	{{publicacion.contenido}}
+
 				  </ion-card-content>
+
 				  		  <ion-col>
-					      <button ion-button icon-left clear small (click)="like(publicacion.id, publicacion.likes,publicacion.estadoLike)">
-					      <ion-icon name={{publicacion.estadoLike}}></ion-icon>
-					      <div>{{publicacion.likes}} Likes</div>
+					      <button ion-button icon-left clear small (click)="like(publicacion.id, publicacion.likes)">
+					      <ion-icon name='thumbs-up'></ion-icon>
+					      <div>{{publicacion.likes}} Me Gusta</div>
+					      </button>
+					    </ion-col>
+
+
+					    <ion-col>
+					      <button ion-button icon-left clear small (click)="noLike(publicacion.id, publicacion.noLikes)">
+					      <ion-icon name='thumbs-down'></ion-icon>
+					      <div>{{publicacion.noLikes}} No Me Gusta</div>
 					      </button>
 					    </ion-col>
 
 					      <ion-col>
-					      <button ion-button color="danger" icon-left clear small (click)="removePubl(publicacion.id)">
+					      <button ion-button color="danger" icon-left clear small (click)="removePubl(publicacion.id,publicacion.uid)">
 					      <ion-icon name="trash"></ion-icon>
 					      <div p style="color:danger;">borrar</div>
 					      </button>
@@ -65,17 +111,20 @@
 
 					</ion-card>
 
-<ion-fab right bottom>
-          <button ion-fab  (click)="agregarPublicacion()">
-            <ion-icon name="add" ></ion-icon>
-          </button>
-        </ion-fab>
+
+					
+
+
 					
 
           </ion-list>
 
 
+          
+
+
       </div>
+
       <ng-template #showLogin>
         <p>Por favor autenticarse...</p>
         <button ion-button color="danger"  full (click)="login()" icon-right>
@@ -83,12 +132,9 @@
           Registrarse con Google
         </button>
       </ng-template>
+
+
 </ion-content>
- <ion-fab right bottom>
-          <button ion-fab  (click)="agregarPublicacion()">
-            <ion-icon name="add" ></ion-icon>
-          </button>
-        </ion-fab>
 
 <body style="background-image:url('https://firebasestorage.googleapis.com/v0/b/prueba-67a60.appspot.com/o/fondoFacturacion.png?alt=media&token=f8923023-db46-4699-b234-82316e766ef5')">
 
